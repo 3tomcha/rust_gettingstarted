@@ -1,18 +1,28 @@
 use yew::prelude::*;
 
-fn main() {
-    yew::start_app::<App>();
+#[derive(Clone, PartialEq)]
+struct Video {
+    id: usize,
+    title: String,
+    speaker: String,
+    url: String
 }
 
+#[derive(Properties, PartialEq)]
+struct VideoListProps {
+    videos: Vec<Video>
+}
+
+#[function_component(VideoList)]
+fn videos_list(VideoListProps { videos }: &VideoListProps) -> Html {
+    videos.iter().map(|video| html! {
+        <p>{format!("{}: {}", video.speaker, video.title)}</p>
+    }).collect()
+}
 
 #[function_component(App)]
 fn app() -> Html {
-    struct Video {
-        id: usize,
-        title: String,
-        speaker: String,
-        url: String
-    }
+    
     let videos = vec![
         Video {
             id: 1,
@@ -40,15 +50,12 @@ fn app() -> Html {
         },
     ];
 
-    let videos = videos.iter().map(|video| html! {
-        <p>{format!("{}: {}", video.speaker, video.title)}</p>
-    }).collect::<Html>();
     html! {
         <>
             <h1>{ "RustConf Explorer"}</h1>
             <div>
                 <h3>{ "Videos to watch" }</h3>
-                { videos }
+                <VideoList videos={videos}/>
             </div>
             <div>
                 <h3>{ "John Doe: Building and breaking things" }</h3>
@@ -56,4 +63,9 @@ fn app() -> Html {
             </div>
         </>
     }
+}
+
+
+fn main() {
+    yew::start_app::<App>();
 }
