@@ -1,5 +1,20 @@
 use yew::prelude::*;
 
+#[derive(Clone, Properties, PartialEq)]
+struct VideoDetailsProps {
+    video: Video,
+}
+
+#[function_component(VideoDetails)]
+fn video_details(VideoDetailsProps { video }: &VideoDetailsProps) -> Html {
+    html! {
+        <div>
+            <h3>{ video.title.clone() }</h3>
+            <img src="https://via.placeholder.com/640x360.png?text=Video+Player+Placeholder" alt="video thumbnail" />
+        </div>
+    }
+}
+
 #[derive(Clone, PartialEq)]
 struct Video {
     id: usize,
@@ -10,18 +25,41 @@ struct Video {
 
 #[derive(Properties, PartialEq)]
 struct VideoListProps {
-    videos: Vec<Video>
+    videos: Vec<Video>,
+    on_click: Callback<Video>
 }
 
-#[function_component(VideoList)]
-fn videos_list(VideoListProps { videos }: &VideoListProps) -> Html {
-    videos.iter().map(|video| html! {
-        <p>{format!("{}: {}", video.speaker, video.title)}</p>
-    }).collect()
+#[function_component(VideosList)]
+fn videos_list(VideoListProps { videos, on_click }: &VideoListProps) -> Html {
+    let on_click = on_click.clone();
+    videos.iter().map(|video| {
+        let on_video_select = {
+            let on_click = on_click.clone();
+            let video = video.clone();
+            Callback::from(move |_| {
+                on_click.emit(video.clone())
+            })
+        };
+        html! {
+            <p onclick={on_video_select}>{format!("{}: {}", video.speaker, video.title)}</p>
+        }}).collect()
 }
 
 #[function_component(App)]
 fn app() -> Html {
+
+    let selected_video = use_state(|| None);
+
+    let on_video_select = {
+        let selected_video = selected_video.clone();
+        Callback::from(move |video: Video| {
+            selected_video.set(Some(video))
+        })
+    };
+
+    let details = selected_video.as_ref().map(|video| html! {
+        <VideoDetails video={video.clone()} />
+    });
     
     let videos = vec![
         Video {
@@ -55,12 +93,9 @@ fn app() -> Html {
             <h1>{ "RustConf Explorer"}</h1>
             <div>
                 <h3>{ "Videos to watch" }</h3>
-                <VideoList videos={videos}/>
+                <VideosList videos={videos} on_click={on_video_select.clone()}/>
             </div>
-            <div>
-                <h3>{ "John Doe: Building and breaking things" }</h3>
-                <img src="https://via.placeholder.com/640x360.png?text=Video+Player+Placeholder" alt="video thumbnail"/>
-            </div>
+            { for details }
         </>
     }
 }
