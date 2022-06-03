@@ -96,6 +96,10 @@ fn app() -> Html {
                 <VideosList videos={videos} on_click={on_video_select.clone()}/>
             </div>
             { for details }
+            <div>
+                <h3>{ "John Doe: Building and breaking things" }</h3>
+                <img src="https://via.placeholder.com/640x360.png?text=Video+Player+Placeholder" alt="video thumbnail"/>
+            </div>
         </>
     }
 }
